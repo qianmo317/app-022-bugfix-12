@@ -2,7 +2,7 @@ import { memo } from 'react';
 import type { JSX, MouseEvent } from 'react';
 import type { Row, Worksheet } from '../types';
 import { PAGE, clampLayout, paginate } from '../lib/layout';
-import { RowContent, ROW_FACTOR } from './paint';
+import { RowContent, ROW_FACTOR, ROW_H } from './paint';
 import { getStrokes } from '../lib/data';
 import { readingsOf } from '../lib/pinyin';
 
@@ -57,11 +57,13 @@ function strokeCountOf(ch: string): number | undefined {
   return s ? s.length : undefined;
 }
 
-/** 行内各字块的 unit 区间，用于点击命中 */
+/** 行内各字块的 unit 区间，用于点击命中（块宽 = 小格数 × 100，累加定位） */
 function blockRanges(row: Row): { char: string; start: number; end: number }[] {
-  return row.map((b, i) => {
-    const start = i * 100;
-    return { char: b.char, start, end: start + 100 };
+  let x = 0;
+  return row.map((b) => {
+    const start = x;
+    x += b.cells.length * 100;
+    return { char: b.char, start, end: x };
   });
 }
 
@@ -87,7 +89,11 @@ export const PageView = memo(function PageView({
   const pinyinFor = pinyinResolver(worksheet);
   const rowWidthMm = layout.perLine * layout.cellMm;
   const rowHeightMm = layout.cellMm * ROW_FACTOR;
-  const sheetStyle = { width: `${PAGE.wMm}mm`, height: `${PAGE.hMm}mm`, padding: '8mm' };
+  const sheetStyle = {
+    width: `${PAGE.wMm}mm`,
+    height: `${PAGE.hMm}mm`,
+    padding: `${PAGE.marginTMm}mm ${PAGE.marginRMm}mm ${PAGE.marginBMm}mm ${PAGE.marginLMm}mm`,
+  };
 
   function handleRowClick(row: Row, e: MouseEvent<SVGSVGElement>) {
     if (plain || !onSelectChar) return;
@@ -115,7 +121,7 @@ export const PageView = memo(function PageView({
                 data-row={ri}
                 width={`${rowWidthMm}mm`}
                 height={`${rowHeightMm}mm`}
-                viewBox={`0 0 ${layout.perLine * 100} 100`}
+                viewBox={`0 0 ${layout.perLine * 100} ${ROW_H}`}
                 onClick={(e) => handleRowClick(row, e)}
               >
                 <RowContent row={row} layout={layout} selectedChar={plain ? undefined : selectedChar} pinyinFor={pinyinFor} />
@@ -123,7 +129,7 @@ export const PageView = memo(function PageView({
             ))}
           </div>
           <div className="sheet-footer" data-page-num={pi + 1}>
-            第 {pi + 1} 页
+            第 {pi + 1} 页 / 共 {pages.length} 页
           </div>
         </div>
       ))}
