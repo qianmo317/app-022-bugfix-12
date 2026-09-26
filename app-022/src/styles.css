@@ -101,10 +101,11 @@ textarea { width: 100%; resize: vertical; }
 .preview-inner { transform-origin: top center; width: max-content; margin: 0 auto; }
 
 /* ---------- 纸张 ---------- */
-.sheet { background: #fff; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.18); margin: 0 auto 10px; overflow: hidden; }
-.sheet-header { display: flex; flex-direction: column; gap: 1mm; }
+.sheet { background: #fff; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.18); margin: 0 auto 10px; display: flex; flex-direction: column; }
+.sheet-header { display: flex; flex-direction: column; gap: 1mm; flex-shrink: 0; }
 .sheet-title { font-weight: 700; font-size: 16px; line-height: 1.2; }
-.sheet-footer { font-size: 10px; color: #9ca3af; text-align: right; line-height: 1; padding-top: 2mm; }
+.sheet-rows { flex: 1; min-height: 0; }
+.sheet-footer { font-size: 10px; color: #9ca3af; text-align: right; line-height: 1; padding-top: 2mm; margin-top: auto; flex-shrink: 0; }
 .row-svg { display: block; }
 
 /* ---------- 打印 ---------- */
